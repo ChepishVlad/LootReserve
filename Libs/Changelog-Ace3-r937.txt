@@ -1,0 +1,169 @@
+------------------------------------------------------------------------
+r937 | nevcairiel | 2010-06-03 17:54:06 +0000 (Thu, 03 Jun 2010) | 1 line
+Changed paths:
+   M /trunk/AceGUI-3.0/widgets/AceGUIWidget-Slider.lua
+
+AceGUI-3.0: Slider: Fire OnValueChanged as well as OnMouseUp when confirming a value in the slider editbox.
+------------------------------------------------------------------------
+r936 | nevcairiel | 2010-05-16 11:58:37 +0000 (Sun, 16 May 2010) | 1 line
+Changed paths:
+   M /trunk/AceGUI-3.0/widgets/AceGUIWidget-Icon.lua
+   M /trunk/AceGUI-3.0/widgets/AceGUIWidget-InteractiveLabel.lua
+   M /trunk/AceGUI-3.0/widgets/AceGUIWidget-Label.lua
+
+AceGUI-3.0: Minor cleanups
+------------------------------------------------------------------------
+r935 | nevcairiel | 2010-05-15 16:09:36 +0000 (Sat, 15 May 2010) | 1 line
+Changed paths:
+   M /trunk/AceGUI-3.0/widgets/AceGUIWidget-EditBox.lua
+
+AceGUI-3.0: EditBox: Added a new API "DisableButton(bool)" to disable the "Okay" button in the editbox. The user will only be able to confirm the value with pressing "Enter" then.
+------------------------------------------------------------------------
+r934 | nevcairiel | 2010-05-15 12:39:44 +0000 (Sat, 15 May 2010) | 1 line
+Changed paths:
+   M /trunk/AceGUI-3.0/widgets/AceGUIWidget-Icon.lua
+
+AceGUI-3.0: Refactored Icon widget
+------------------------------------------------------------------------
+r933 | nevcairiel | 2010-05-15 10:42:29 +0000 (Sat, 15 May 2010) | 1 line
+Changed paths:
+   M /trunk/AceGUI-3.0/widgets/AceGUIWidget-InteractiveLabel.lua
+   M /trunk/AceGUI-3.0/widgets/AceGUIWidget-Label.lua
+
+AceGUI-3.0: The InteractiveLabel now uses the Label widget as a "super"-widget, extending its functionality, instead of providing the same.
+------------------------------------------------------------------------
+r932 | nevcairiel | 2010-05-15 09:48:10 +0000 (Sat, 15 May 2010) | 1 line
+Changed paths:
+   M /trunk/AceGUI-3.0/widgets/AceGUIContainer-BlizOptionsGroup.lua
+   M /trunk/AceGUI-3.0/widgets/AceGUIContainer-Frame.lua
+   M /trunk/AceGUI-3.0/widgets/AceGUIWidget-Button.lua
+   M /trunk/AceGUI-3.0/widgets/AceGUIWidget-CheckBox.lua
+   M /trunk/AceGUI-3.0/widgets/AceGUIWidget-ColorPicker.lua
+   M /trunk/AceGUI-3.0/widgets/AceGUIWidget-EditBox.lua
+   M /trunk/AceGUI-3.0/widgets/AceGUIWidget-Heading.lua
+   M /trunk/AceGUI-3.0/widgets/AceGUIWidget-Label.lua
+   M /trunk/AceGUI-3.0/widgets/AceGUIWidget-MultiLineEditBox.lua
+
+AceGUI-3.0: More widget cleanup and refactoring.
+------------------------------------------------------------------------
+r931 | nevcairiel | 2010-05-14 19:08:50 +0000 (Fri, 14 May 2010) | 1 line
+Changed paths:
+   M /trunk/AceConfig-3.0/AceConfigDialog-3.0/AceConfigDialog-3.0.lua
+
+AceConfigDialog-3.0: Plug a leak(ed global).
+------------------------------------------------------------------------
+r930 | nevcairiel | 2010-05-14 14:46:27 +0000 (Fri, 14 May 2010) | 1 line
+Changed paths:
+   M /trunk/AceGUI-3.0/AceGUI-3.0.xml
+   A /trunk/AceGUI-3.0/widgets/AceGUIContainer-BlizOptionsGroup.lua (from /trunk/AceGUI-3.0/widgets/AceGUIWidget-BlizOptionsGroup.lua:925)
+   A /trunk/AceGUI-3.0/widgets/AceGUIContainer-DropDownGroup.lua (from /trunk/AceGUI-3.0/widgets/AceGUIWidget-DropDownGroup.lua:921)
+   A /trunk/AceGUI-3.0/widgets/AceGUIContainer-Frame.lua (from /trunk/AceGUI-3.0/widgets/AceGUIWidget-Frame.lua:921)
+   A /trunk/AceGUI-3.0/widgets/AceGUIContainer-InlineGroup.lua (from /trunk/AceGUI-3.0/widgets/AceGUIWidget-InlineGroup.lua:921)
+   A /trunk/AceGUI-3.0/widgets/AceGUIContainer-ScrollFrame.lua (from /trunk/AceGUI-3.0/widgets/AceGUIWidget-ScrollFrame.lua:921)
+   A /trunk/AceGUI-3.0/widgets/AceGUIContainer-SimpleGroup.lua (from /trunk/AceGUI-3.0/widgets/AceGUIWidget-SimpleGroup.lua:921)
+   A /trunk/AceGUI-3.0/widgets/AceGUIContainer-TabGroup.lua (from /trunk/AceGUI-3.0/widgets/AceGUIWidget-TabGroup.lua:921)
+   A /trunk/AceGUI-3.0/widgets/AceGUIContainer-TreeGroup.lua (from /trunk/AceGUI-3.0/widgets/AceGUIWidget-TreeGroup.lua:921)
+   A /trunk/AceGUI-3.0/widgets/AceGUIContainer-Window.lua (from /trunk/AceGUI-3.0/widgets/AceGUIWidget-Window.lua:921)
+   D /trunk/AceGUI-3.0/widgets/AceGUIWidget-BlizOptionsGroup.lua
+   D /trunk/AceGUI-3.0/widgets/AceGUIWidget-DropDownGroup.lua
+   D /trunk/AceGUI-3.0/widgets/AceGUIWidget-Frame.lua
+   D /trunk/AceGUI-3.0/widgets/AceGUIWidget-InlineGroup.lua
+   D /trunk/AceGUI-3.0/widgets/AceGUIWidget-ScrollFrame.lua
+   D /trunk/AceGUI-3.0/widgets/AceGUIWidget-SimpleGroup.lua
+   D /trunk/AceGUI-3.0/widgets/AceGUIWidget-TabGroup.lua
+   D /trunk/AceGUI-3.0/widgets/AceGUIWidget-TreeGroup.lua
+   D /trunk/AceGUI-3.0/widgets/AceGUIWidget-Window.lua
+
+AceGUI-3.0: Renamed the files of the containers to AceGUIContainer* instead of AceGUIWidget*
+------------------------------------------------------------------------
+r929 | nevcairiel | 2010-05-13 16:26:32 +0000 (Thu, 13 May 2010) | 1 line
+Changed paths:
+   M /trunk/AceGUI-3.0/widgets/AceGUIWidget-Button.lua
+
+AceGUI-3.0: Button: Remove the texture realignment code.
+------------------------------------------------------------------------
+r928 | nevcairiel | 2010-05-13 16:10:49 +0000 (Thu, 13 May 2010) | 3 lines
+Changed paths:
+   M /trunk/AceGUI-3.0/widgets/AceGUIWidget-Label.lua
+
+AceGUI-3.0: Label:
+- Fix using SetFontObject. We'll internally wrap that to a :SetFont call now, since any font set with SetFont will override any font set with SetFontObject.
+- Avoid unnecessary re-layouts of the anchors during widget creation
+------------------------------------------------------------------------
+r927 | nevcairiel | 2010-05-13 15:55:19 +0000 (Thu, 13 May 2010) | 1 line
+Changed paths:
+   M /trunk/AceGUI-3.0/widgets/AceGUIWidget-Label.lua
+
+AceGUI-3.0: Fix height-adjustments of the Label widget, apparently the height doesn't adjust itself when you anchor the top two corners, it needs a fixed width value.
+------------------------------------------------------------------------
+r926 | nevcairiel | 2010-05-13 15:33:09 +0000 (Thu, 13 May 2010) | 1 line
+Changed paths:
+   M /trunk/AceGUI-3.0/widgets/AceGUIWidget-Label.lua
+
+AceGUI-3.0: Remove the void OnRelease from the Label widget
+------------------------------------------------------------------------
+r925 | nevcairiel | 2010-05-13 15:32:00 +0000 (Thu, 13 May 2010) | 1 line
+Changed paths:
+   M /trunk/AceGUI-3.0/widgets/AceGUIWidget-BlizOptionsGroup.lua
+   M /trunk/AceGUI-3.0/widgets/AceGUIWidget-Button.lua
+   M /trunk/AceGUI-3.0/widgets/AceGUIWidget-Label.lua
+
+AceGUI-3.0: Cleanup BOG, Button and Label
+------------------------------------------------------------------------
+r924 | nevcairiel | 2010-05-13 15:12:20 +0000 (Thu, 13 May 2010) | 3 lines
+Changed paths:
+   M /trunk/AceGUI-3.0/AceGUI-3.0.lua
+
+AceGUI-3.0: OnRelease is no longer mandatory on widgets + small tweaks.
+
+Most widgets do not use OnRelease, and thus we can remove the void functions from the widgets. OnAcquire is still mandatory, and should be used to restore a default state for the widgets.
+------------------------------------------------------------------------
+r923 | nevcairiel | 2010-05-13 14:30:54 +0000 (Thu, 13 May 2010) | 1 line
+Changed paths:
+   M /trunk/AceGUI-3.0/AceGUI-3.0.lua
+
+AceGUI-3.0: Cleanups and optimizations
+------------------------------------------------------------------------
+r922 | nevcairiel | 2010-05-13 09:40:08 +0000 (Thu, 13 May 2010) | 1 line
+Changed paths:
+   M /trunk/AceGUI-3.0/widgets/AceGUIWidget-Label.lua
+
+AceGUI-3.0: Cleanup and refactoring of the Label widget. It'll properly reset its font now (Ticket #108)
+------------------------------------------------------------------------
+r921 | nevcairiel | 2010-05-09 15:49:14 +0000 (Sun, 09 May 2010) | 1 line
+Changed paths:
+   M /trunk/AceConfig-3.0/AceConfigDialog-3.0/AceConfigDialog-3.0.lua
+   M /trunk/AceConfig-3.0/AceConfigRegistry-3.0/AceConfigRegistry-3.0.lua
+
+AceConfigDialog-3.0: Implement "softMin" and "softMax", allowing for a UI-specific minimum/maximum for range controls, while allowing manual input of values in the old min/max range. (Ticket #123)
+------------------------------------------------------------------------
+r920 | nevcairiel | 2010-05-09 11:56:42 +0000 (Sun, 09 May 2010) | 1 line
+Changed paths:
+   M /trunk/AceGUI-3.0/widgets/AceGUIWidget-MultiLineEditBox.lua
+
+AceGUI-3.0: Rewrite of the MultiLineEditBox based on the code by Vexxilus  (Ticket #68) - Needs Testing!
+------------------------------------------------------------------------
+r919 | nevcairiel | 2010-05-09 11:36:03 +0000 (Sun, 09 May 2010) | 4 lines
+Changed paths:
+   M /trunk/AceGUI-3.0/AceGUI-3.0.lua
+
+AceGUI-3.0:
+- Fix a error when showing the "Widget has no OnRelease" error message (Ticket #130)
+- Added GetWidgetCount API (Ticket #128)
+- Added GetWidgetVersion API (Ticket #127)
+------------------------------------------------------------------------
+r918 | nevcairiel | 2010-05-09 11:31:27 +0000 (Sun, 09 May 2010) | 4 lines
+Changed paths:
+   M /trunk/AceConfig-3.0/AceConfigDialog-3.0/AceConfigDialog-3.0.lua
+
+AceConfigDialog-3.0:
+- Removed an unused table (Ticket #124)
+- Simplified FeedOptions for multiline editboxes (Ticket #129)
+
+------------------------------------------------------------------------
+r917 | ammo | 2010-03-16 14:09:34 +0000 (Tue, 16 Mar 2010) | 1 line
+Changed paths:
+   M /trunk/AceGUI-3.0/widgets/AceGUIWidget-CheckBox.lua
+
+AceGUI-3.0: CheckBox: check for self.desc:GetText() being nil as well as "" to prevent setting the wrong height on the checkbox causing bouncing checkboxes
+------------------------------------------------------------------------
