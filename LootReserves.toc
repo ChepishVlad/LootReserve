@@ -1,6 +1,6 @@
 ## Interface: 30000
 ## Title: LootReserves
-## Notes: Addon for reservetion loot
+## Notes: Addon for reservation loot
 ## Author: VTsepish
 ## Version: 0.1
 ## SavedVariables: LootReservesDB
