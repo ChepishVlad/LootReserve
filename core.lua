@@ -19,6 +19,7 @@ function LootReserves:OnInitialize()
     self:CreateMainFrame()
     self:RegisterChatCommand("rdrop", "ClearAllReserves")
     self:RegisterChatCommand("rshow", "ShowFrame")
+    self:RegisterChatCommand("rannounce", "AnnounceReserves")
     self:RegisterChatCommand("showmembers", "ShowMembersReservations")
     self:RegisterChatCommand("showreserves", "ShowReservedItems")
     self:RegisterEvent("CHAT_MSG_WHISPER")
@@ -37,6 +38,8 @@ function LootReserves:CHAT_MSG_WHISPER(event, message, sender)
         self:CancelReserve(itemLink, sender)
     elseif command == "showreserve" then
         self:ShowPlayerReserves(sender)
+    elseif command == "checkreserve" then
+        self:CheckReserve(itemLink, sender)
     end
 end
 
@@ -113,6 +116,22 @@ function LootReserves:ShowPlayerReserves(sender)
     SendChatMessage("Your reserved items: " .. reservedItemsList, "WHISPER", nil, sender)
 end
 
+function LootReserves:CheckReserve(itemLink, sender)
+    if not itemLink or not itemLink:match("|Hitem:(%d+)") then
+        SendChatMessage("You need to use an item link. Example: !checkreserve [item link]", "WHISPER", nil, sender)
+        return
+    end
+
+    local itemID = itemLink:match("|Hitem:(%d+)")
+    local reservedPlayers = reserves[itemID]
+
+    if not reservedPlayers or #reservedPlayers == 0 then
+        SendChatMessage("There is no reserves for this item " .. itemLink, "WHISPER", nil, sender)
+    else
+        SendChatMessage(#reservedPlayers .. " players have reserved this item " .. itemLink, "WHISPER", nil, sender)
+    end
+end
+
 
 function LootReserves:ShowReservedItems()
     for itemID, players in pairs(reserves) do
@@ -145,6 +164,46 @@ function LootReserves:GetTableSize(tbl)
         count = count + 1
     end
     return count
+end
+
+function LootReserves:AnnounceReserves()
+    if not LootReserves:IsInRaid() then
+        print("You must be in a raid group to announce reserves.")
+        return
+    end
+
+    if not next(reserves) then
+        SendChatMessage("No items have been reserved.", "RAID_WARNING")
+        return
+    end
+
+    SendChatMessage("Reserved items:", "RAID_WARNING")
+
+    for itemID, players in pairs(reserves) do
+        local itemLink = select(2, GetItemInfo(itemID)) -- Получаем ссылку на предмет
+        local count = #players
+
+        if count > 0 then
+            if count <= 3 then
+                local playerList = table.concat(players, ", ")
+                if itemLink then
+                    SendChatMessage(string.format("%s: Reserved by %s", itemLink, playerList), "RAID_WARNING")
+                else
+                    SendChatMessage(string.format("Item ID %d: Reserved by %s", itemID, playerList), "RAID_WARNING")
+                end
+            else
+                if itemLink then
+                    SendChatMessage(string.format("%s: %d players", itemLink, count), "RAID_WARNING")
+                else
+                    SendChatMessage(string.format("Item ID %d: %d players", itemID, count), "RAID_WARNING")
+                end
+            end
+        end
+    end
+end
+
+function LootReserves:IsInRaid()
+    return GetNumRaidMembers() > 0
 end
 
 ----------------------------------
