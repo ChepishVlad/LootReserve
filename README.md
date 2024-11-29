@@ -1,63 +1,70 @@
-# LootReserves Addon
+# LootReserves
 
-## Description
-LootReserves is a World of Warcraft addon designed to help raid leaders manage reserved items and player reservations efficiently. The addon allows reserving items, canceling reservations, announcing reserved items to the raid, and displaying who has reserved specific items.
+**LootReserves** is a World of Warcraft addon for managing loot reservations during raids. It allows players to reserve items via whisper commands and provides the raid leader with tools to view, announce, and manage reserved items.
+
+---
+
+## Features
+
+- **Whisper Commands**: Players can reserve, cancel, and check reserved items via in-game whispers.
+- **Customizable Limit**: Set a limit on the maximum number of items each player can reserve.
+- **GUI Integration**: View reserved items, players, and settings through an intuitive interface.
+- **Announcement Tools**: Announce loot rules and reserved items directly to the raid.
+- **Command Shortcuts**: Handy slash commands for quick access to key features.
 
 ---
 
 ## Commands
 
-### **Admin Commands**
-1. **`/rshow`**  
-   Opens or closes the main LootReserves frame for managing reservations.
+### Player Commands
+- `!addreserve [item link]`: Reserve an item.
+- `!cancelreserve [item link]`: Cancel a reservation.
+- `!showreserve me`: Display all items reserved by you.
+- `!checkreserve [item link]`: Check if an item is reserved and by how many players.
 
-2. **`/rdrop`**  
-   Clears all current reserves and resets the addon.  
-   **Output:** `All reserves have been cleared.`
-   
-3. **`/rannounce`**  
-   Announces all reserved items to the raid.
-   - If an item is reserved by **3 or fewer players**, their names are listed.\
-     **Output Example:**
-     `[Shadowmourne]: Reserved by Player1, Player2, Player3`
-   - If reserved by **more than 3 players**, only the total number of players is displayed.  
-     **Output Example:**
-     `[Invincible's Reins]: 5 players`
+### Raid Leader Commands
+- `/rdrop`: Clear all reservations.
+- `/rshow`: Show the main addon frame.
+- `/rannounce`: Announce reserved items in raid chat.
+- `/showmembers`: Print a list of all players with their reserved items.
+- `/showreserves`: Print all reserved items and their reserving players.
 
 ---
 
-### **Player Commands (Whisper to Raid Leader)**
-1. **`!addreserve [item link]`**  
-   Reserves an item for the player.
-   - Each player can reserve up to **2 items**.
-   - Requires an item link in the message.  
-     **Response:** `You have reserved: [Item Name]`
+## Installation
 
-2. **`!cancelreserve [item link]`**  
-   Cancels the reservation for the specified item.
-   - Requires an item link in the message.  
-     **Response:**  Reserve was removed.`
-
-3. **`!showreserve me`**  
-   Displays all items the player has reserved.  
-   **Response:**  `Your reserved items: [Item 1], [Item 2]`
-4. **`!checkreserve [item link]`**  
-      Checks how many players have reserved the specified item.
-   - If no one has reserved it:\
-     **Response:** `There is no reserve for this item [Item Name]`
-   - If players have reserved it:\
-     **Response:** `[Number] players have reserved this item [Item Name]`
-
----
-## Features
-- Manage item reservations directly via commands or GUI.
-- View reserved items and players' reservations in a simple tabbed interface.
-- Whisper-based commands for players to reserve or cancel items.
-- Automatic raid announcements for reserved items with detailed or summarized information.
+1. Download the addon and extract it into your World of Warcraft `Interface/Addons` folder.
+2. Restart your game or reload your UI using `/reload`.
 
 ---
 
-## Notes
-- Make sure to use proper item links (`[Item Name]`) in chat commands where required.
-- This addon is designed for raid groups and will notify you if you're not in a raid when attempting to announce reserves.  
-  **Message:** `You must be in a raid group to announce reserves.`
+## User Interface
+
+The addon includes a tab-based interface with three main sections:
+
+1. **Items**:
+    - View a dropdown of reserved items.
+    - See a list of players who reserved the selected item.
+
+2. **Members**:
+    - View a dropdown of players who reserved items.
+    - See a list of items reserved by the selected player.
+
+3. **Settings**:
+    - Configure the maximum number of items players can reserve.
+    - Clear all reservations.
+    - Announce loot rules to the raid.
+    - Announce current reservations.
+
+---
+
+## How It Works
+
+1. Players whisper commands to reserve items.
+2. The addon tracks reservations and enforces limits.
+3. The raid leader can view and manage all reservations through the interface or commands.
+
+---
+
+
+Enjoy efficient loot management with **LootReserves**! 🎉

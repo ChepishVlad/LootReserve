@@ -52,8 +52,8 @@ function LootReserves:AddReserve(itemLink, sender)
     local itemID = itemLink:match("|Hitem:(%d+)")
     local itemName = itemLink:match("%[(.-)%]")
 
-    if members[sender] and self:GetTableSize(members[sender]) >= 2 then
-        SendChatMessage("You can't reserve more than 2 items.", "WHISPER", nil, sender)
+    if members[sender] and self:GetTableSize(members[sender]) >= (self.db.profile.MaxReserves or 2) then
+        SendChatMessage("You can't reserve more than " .. (self.db.profile.MaxReserves or 2) .. " items.", "WHISPER", nil, sender)
         return
     end
 
@@ -226,7 +226,8 @@ function LootReserves:CreateMainFrame()
     tabGroup:SetLayout("Flow")
     tabGroup:SetTabs({
         {text = "Items", value = "items"},
-        {text = "Members", value = "members"}
+        {text = "Members", value = "members"},
+        {text = "Settings", value = "settings"}
     })
 
     tabGroup:SetCallback("OnGroupSelected", function(container, _, tab)
@@ -235,6 +236,8 @@ function LootReserves:CreateMainFrame()
             self:CreateItemsTab(container)
         elseif tab == "members" then
             self:CreateMembersTab(container)
+        elseif tab == "settings" then
+            self:CreateSettingsTab(container)
         end
     end)
     tabGroup:SelectTab("items")
@@ -275,6 +278,43 @@ function LootReserves:CreateMembersTab(container)
     itemsInfoGroup:SetHeight(300)
     container:AddChild(itemsInfoGroup)
     self.itemsInfoGroup = itemsInfoGroup
+end
+
+function LootReserves:CreateSettingsTab(container)
+    local dropdown = LootReservesGUI:Create("Dropdown")
+    dropdown:SetLabel("Max reserves per player:")
+    dropdown:SetFullWidth(true)
+    dropdown:SetList({1, 2, 3})
+    dropdown:SetValue(self.db.profile.MaxReserves or 2)
+    dropdown:SetCallback("OnValueChanged", function(_, _, value)
+        self.db.profile.MaxReserves = value
+    end)
+    container:AddChild(dropdown)
+
+    local removeButton = LootReservesGUI:Create("Button")
+    removeButton:SetText("Remove Reserves")
+    removeButton:SetFullWidth(true)
+    removeButton:SetCallback("OnClick", function()
+        LootReserves:ClearAllReserves()
+    end)
+    container:AddChild(removeButton)
+
+    local announceRulesButton = LootReservesGUI:Create("Button")
+    announceRulesButton:SetText("Announce Rules")
+    announceRulesButton:SetFullWidth(true)
+    announceRulesButton:SetCallback("OnClick", function()
+        local maxReserves = self.db.profile.MaxReserves or 2
+        SendChatMessage("You can reserve " .. maxReserves .. " items for this raid.", "RAID_WARNING")
+    end)
+    container:AddChild(announceRulesButton)
+
+    local announceReservesButton = LootReservesGUI:Create("Button")
+    announceReservesButton:SetText("Announce Reserves")
+    announceReservesButton:SetFullWidth(true)
+    announceReservesButton:SetCallback("OnClick", function()
+        LootReserves:AnnounceReserves()
+    end)
+    container:AddChild(announceReservesButton)
 end
 
 function LootReserves:DisplayReservesInfo(itemID)
