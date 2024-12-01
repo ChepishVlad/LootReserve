@@ -10,6 +10,7 @@ local members = {}
 function LootReserves:OnInitialize()
     self.db = LootReservesDB:New("LootReservesDB", {
         profile = {
+            isReserveOpen = false,
             Reserves = {},
             Members = {}
         }
@@ -44,6 +45,11 @@ function LootReserves:CHAT_MSG_WHISPER(event, message, sender)
 end
 
 function LootReserves:AddReserve(itemLink, sender)
+    if not self.db.profile.isReserveOpen then
+        SendChatMessage("Reservations are closed now.", "WHISPER", nil, sender)
+        return
+    end
+
     if not itemLink or not itemLink:match("|Hitem:(%d+)") then
         SendChatMessage("You need to use an item link. Example: !reserve [item link]", "WHISPER", nil, sender)
         return
@@ -206,6 +212,20 @@ function LootReserves:IsInRaid()
     return GetNumRaidMembers() > 0
 end
 
+function LootReserves:OpenReserves()
+    self.db.profile.isReserveOpen = true
+    SendChatMessage("Reservations are opened", "RAID_WARNING")
+    local maxReserves = self.db.profile.MaxReserves or 2
+    SendChatMessage("You can reserve " .. maxReserves .. " items for this raid.", "RAID_WARNING")
+    print("LootReserves: Reservations are now open!")
+end
+
+function LootReserves:CloseReserves()
+    self.db.profile.isReserveOpen = false
+    SendChatMessage("Reservations are now closed.", "RAID_WARNING")
+    print("LootReserves: Reservations are now closed!")
+end
+
 ----------------------------------
 ----------- Front part -----------
 ----------------------------------
@@ -315,6 +335,23 @@ function LootReserves:CreateSettingsTab(container)
         LootReserves:AnnounceReserves()
     end)
     container:AddChild(announceReservesButton)
+
+    local openButton = LootReservesGUI:Create("Button")
+    openButton:SetText("Open Reserves")
+    openButton:SetFullWidth(true)
+    openButton:SetCallback("OnClick", function()
+        self:OpenReserves()
+    end)
+    container:AddChild(openButton)
+
+    local closeButton = LootReservesGUI:Create("Button")
+    closeButton:SetText("Close Reserves")
+    closeButton:SetFullWidth(true)
+    closeButton:SetCallback("OnClick", function()
+        self:CloseReserves()
+    end)
+    container:AddChild(closeButton)
+
 end
 
 function LootReserves:DisplayReservesInfo(itemID)
