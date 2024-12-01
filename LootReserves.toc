@@ -3,7 +3,8 @@
 ## Notes: Addon for reservation loot
 ## Author: VTsepish
 ## Version: 0.2
-## SavedVariables: LootReservesDB
+## OptionalDeps: LibDataBroker-1.1, LibDBIcon-1.0
+## SavedVariables: LootReservesDB, LootReservesDB
 
 # Required libraries
 Libs\LibStub\LibStub.lua
@@ -14,5 +15,7 @@ Libs\AceDB-3.0\AceDB-3.0.xml
 Libs\AceTimer-3.0\AceTimer-3.0.xml
 Libs\AceEvent-3.0\AceEvent-3.0.xml
 Libs\AceGUI-3.0\AceGUI-3.0.xml
+Libs\LibDataBroker-1.1.lua
+Libs\LibDBIcon-1.0\LibDBIcon-1.0.lua
 
 core.lua

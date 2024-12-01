@@ -7,10 +7,14 @@
 ## Features
 
 - **Whisper Commands**: Players can reserve, cancel, and check reserved items via in-game whispers.
-- **Customizable Limit**: Set a limit on the maximum number of items each player can reserve.
-- **GUI Integration**: View reserved items, players, and settings through an intuitive interface.
-- **Announcement Tools**: Announce loot rules and reserved items directly to the raid.
-- **Command Shortcuts**: Handy slash commands for quick access to key features.
+- **Customizable Reservation Limits**: Configure the maximum number of items a player can reserve (1, 2, or 3).
+- **Reservation Clearing**: Clear all reservations with a single command or button.
+- **GUI Integration**: Manage reservations, players, and settings via an intuitive tab-based interface.
+- **Announcements**:
+   - Share loot rules directly with the raid.
+   - Announce reserved items or loot lists to the raid group.
+- **Real-Time Updates**: View and edit reservations dynamically during a raid.
+- **Slash Commands**: Convenient commands for managing reservations and the addon interface.
 
 ---
 
@@ -55,6 +59,7 @@ The addon includes a tab-based interface with three main sections:
     - Clear all reservations.
     - Announce loot rules to the raid.
     - Announce current reservations.
+    - Ability to close or open reservations
 
 ---
 

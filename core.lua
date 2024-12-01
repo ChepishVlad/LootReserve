@@ -3,20 +3,44 @@ local addonName, addonTable = ...
 local LootReserves = LibStub("AceAddon-3.0"):NewAddon("LootReserves", "AceConsole-3.0", "AceEvent-3.0", "AceTimer-3.0")
 local LootReservesGUI = LibStub("AceGUI-3.0")
 local LootReservesDB = LibStub("AceDB-3.0")
+local LDB = LibStub("LibDataBroker-1.1")
+local LDBIcon = LibStub("LibDBIcon-1.0")
 
 local reserves = {}
 local members = {}
+
+local LootReservesLDB = LDB:NewDataObject("LootReserves", {
+    type = "launcher",
+    text = "Loot Reserves",
+    icon = "Interface\\AddOns\\LootReserves\\ico.tga",
+    OnClick = function(_, button)
+        if button == "LeftButton" then
+            LootReserves:ToggleMainFrame()
+        elseif button == "RightButton" then
+            LootReserves:OpenSettings()
+        end
+    end,
+    OnTooltipShow = function(tooltip)
+        tooltip:AddLine("Loot Reserves")
+        tooltip:AddLine("Left-click: Open main frame", 1, 1, 1)
+        tooltip:AddLine("Right-click: Open settings", 1, 1, 1)
+    end,
+})
 
 function LootReserves:OnInitialize()
     self.db = LootReservesDB:New("LootReservesDB", {
         profile = {
             isReserveOpen = false,
             Reserves = {},
-            Members = {}
+            Members = {},
+            minimap = { hide = false },
         }
     }, true)
     reserves = self.db.profile.Reserves
     members = self.db.profile.Members
+
+    LDBIcon:Register("LootReserves", LootReservesLDB, self.db.profile.minimap)
+
     self:CreateMainFrame()
     self:RegisterChatCommand("rdrop", "ClearAllReserves")
     self:RegisterChatCommand("rshow", "ShowFrame")
@@ -24,6 +48,18 @@ function LootReserves:OnInitialize()
     self:RegisterChatCommand("showmembers", "ShowMembersReservations")
     self:RegisterChatCommand("showreserves", "ShowReservedItems")
     self:RegisterEvent("CHAT_MSG_WHISPER")
+end
+
+function LootReserves:ToggleMainFrame()
+    if self.frame and self.frame:IsShown() then
+        self.frame:Hide()
+    else
+        self.frame:Show()
+    end
+end
+
+function LootReserves:OpenSettings()
+    print("Settings menu would open here (to be implemented).")
 end
 
 ----------------------------------
@@ -500,5 +536,14 @@ function LootReserves:ClearAllReserves()
     print("Все резервы были очищены.")
 end
 
+function LootReserves:ToggleMinimapIcon()
+    local shouldHide = not self.db.profile.minimap.hide
+    self.db.profile.minimap.hide = shouldHide
+    if shouldHide then
+        LDBIcon:Hide("LootReserves")
+    else
+        LDBIcon:Show("LootReserves")
+    end
+end
 
 LootReserves:OnInitialize()
