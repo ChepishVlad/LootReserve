@@ -12,7 +12,7 @@ local members = {}
 local LootReservesLDB = LDB:NewDataObject("LootReserves", {
     type = "launcher",
     text = "Loot Reserves",
-    icon = "Interface\\AddOns\\LootReserves\\ico.tga",
+    icon = "Interface\\AddOns\\LootReserve\\ico.tga",
     OnClick = function(_, button)
         if button == "LeftButton" then
             LootReserves:ToggleMainFrame()
