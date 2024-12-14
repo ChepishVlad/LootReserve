@@ -42,6 +42,7 @@ function LootReserves:OnInitialize()
     if not LDBIcon:IsRegistered("LootReserves") then
         LDBIcon:Register("LootReserves", LootReservesLDB, self.db.profile.minimap)
     end
+    LDBIcon:Refresh("LootReserves", self.db.profile.minimap)
 
     self:CreateMainFrame()
     self:RegisterChatCommand("rdrop", "ClearAllReserves")
