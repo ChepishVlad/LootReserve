@@ -68,6 +68,7 @@ function LootReserves:OnInitialize()
     self:RegisterChatCommand("showmembers", "ShowMembersReservations")
     self:RegisterChatCommand("showreserves", "ShowReservedItems")
     self:RegisterEvent("CHAT_MSG_WHISPER")
+    self:RegisterEvent("CHAT_MSG_RAID_WARNING")
 end
 
 function LootReserves:ToggleMainFrame()
@@ -85,6 +86,34 @@ end
 ----------------------------------
 ----------- Back part ------------
 ----------------------------------
+
+function LootReserves:CHAT_MSG_RAID_WARNING(event, message, sender)
+    -- Проверяем права отправителя (лидер/офицер)
+    local isLeaderOrOfficer = false
+    if IsInRaid() then
+        for i = 1, GetNumGroupMembers() do
+            local name, rank = GetRaidRosterInfo(i)
+            if name == sender and (rank == 2 or rank == 1) then  -- 2 = офицер, 1 = лидер
+                isLeaderOrOfficer = true
+                break
+            end
+        end
+    end
+    if not isLeaderOrOfficer then return end
+
+    -- Ищем ссылку на предмет в сообщении
+    local itemLink = message:match("(|Hitem:%d+:.-|h.-|h)")
+    if not itemLink then return end
+
+    -- Проверяем резервы
+    local itemID = itemLink:match("|Hitem:(%d+)")
+    local reservedPlayers = itemID and reserves[itemID] or nil
+    if not reservedPlayers or #reservedPlayers == 0 then return end
+
+    -- Отправляем ТОЛЬКО список игроков через запятую
+    SendChatMessage(table.concat(reservedPlayers, ", "), "RAID_WARNING")
+end
+
 
 function LootReserves:CHAT_MSG_WHISPER(event, message, sender)
     local command, itemLink = message:match("!(%w+)%s+(.+)")
