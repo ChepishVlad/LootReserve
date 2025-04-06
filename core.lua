@@ -39,6 +39,23 @@ function LootReserves:OnInitialize()
     reserves = self.db.profile.Reserves
     members = self.db.profile.Members
 
+    GameTooltip:HookScript("OnTooltipSetItem", function(tooltip)
+        local _, itemLink = tooltip:GetItem()
+        if not itemLink then return end
+
+        local itemID = itemLink:match("|Hitem:(%d+)")
+        if not itemID then return end
+
+        local reservedPlayers = reserves[itemID]
+        if reservedPlayers and #reservedPlayers > 0 then
+            tooltip:AddLine(" ") -- Пустая строка для разделения
+            tooltip:AddLine("|cFF00FF00Reserved by:|r")
+            for _, player in ipairs(reservedPlayers) do
+                tooltip:AddLine("  - " .. player)
+            end
+        end
+    end)
+
     if not LDBIcon:IsRegistered("LootReserves") then
         LDBIcon:Register("LootReserves", LootReservesLDB, self.db.profile.minimap)
     end
