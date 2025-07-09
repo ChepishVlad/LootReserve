@@ -8,6 +8,7 @@ local LDBIcon = LibStub("LibDBIcon-1.0")
 
 local reserves = {}
 local members = {}
+local councilLoot = {}
 
 local LootReservesLDB = LDB:NewDataObject("LootReserves", {
     type = "launcher",
@@ -33,11 +34,13 @@ function LootReserves:OnInitialize()
             isReserveOpen = false,
             Reserves = {},
             Members = {},
+            CouncilLoot = {},
             minimap = { hide = false },
         }
     }, true)
     reserves = self.db.profile.Reserves
     members = self.db.profile.Members
+    councilLoot = self.db.profile.CouncilLoot
 
     GameTooltip:HookScript("OnTooltipSetItem", function(tooltip)
         local _, itemLink = tooltip:GetItem()
@@ -45,6 +48,12 @@ function LootReserves:OnInitialize()
 
         local itemID = itemLink:match("|Hitem:(%d+)")
         if not itemID then return end
+
+        -- Показываем информацию о council loot
+        if councilLoot[itemID] then
+            tooltip:AddLine(" ")
+            tooltip:AddLine("|cFFFF0000Reserved for council loot|r")
+        end
 
         local reservedPlayers = reserves[itemID]
         if reservedPlayers and #reservedPlayers > 0 then
@@ -67,6 +76,9 @@ function LootReserves:OnInitialize()
     self:RegisterChatCommand("rannounce", "AnnounceReserves")
     self:RegisterChatCommand("showmembers", "ShowMembersReservations")
     self:RegisterChatCommand("showreserves", "ShowReservedItems")
+    self:RegisterChatCommand("addcouncil", "AddCouncil")
+    self:RegisterChatCommand("showcouncil", "ShowCouncil")
+    self:RegisterChatCommand("clearcouncil", "ClearCouncil")
     self:RegisterEvent("CHAT_MSG_WHISPER")
     self:RegisterEvent("CHAT_MSG_RAID_WARNING")
 end
@@ -142,6 +154,12 @@ function LootReserves:AddReserve(itemLink, sender)
 
     local itemID = itemLink:match("|Hitem:(%d+)")
     local itemName = itemLink:match("%[(.-)%]")
+
+    -- Проверяем, есть ли предмет в council loot
+    if councilLoot[itemID] then
+        SendChatMessage("This item is reserved for council loot and cannot be reserved.", "WHISPER", nil, sender)
+        return
+    end
 
     if members[sender] and self:GetTableSize(members[sender]) >= (self.db.profile.MaxReserves or 2) then
         SendChatMessage("You can't reserve more than " .. (self.db.profile.MaxReserves or 2) .. " items.", "WHISPER", nil, sender)
@@ -228,6 +246,45 @@ function LootReserves:ShowReservedItems()
     for itemID, players in pairs(reserves) do
         print("Item ID " .. itemID .. " reserved by: " .. table.concat(players, ", "))
     end
+end
+
+function LootReserves:AddCouncil(msg)
+    local itemLink = msg:match("|c%x+|Hitem:.-|h.-|h|r") or msg:match("|Hitem:.-|h.-|h") or msg:match("%[.-%]")
+    local itemID = itemLink:match("|Hitem:(%d+)")
+
+    -- Добавляем в список council loot
+    councilLoot[itemID] = itemLink
+    self.db.profile.CouncilLoot = councilLoot
+
+    print("Added to council loot: " .. (select(2, GetItemInfo(itemID)) or itemLink))
+    SendChatMessage("Item added to council loot: " .. (select(2, GetItemInfo(itemID)) or itemLink), "RAID_WARNING")
+end
+
+function LootReserves:ShowCouncil()
+    if not next(councilLoot) then
+        print("Council loot list is empty.")
+        return
+    end
+
+    print("Council loot items:")
+    for itemID, itemLink in pairs(councilLoot) do
+        print("- " .. itemLink)
+    end
+
+    if IsInRaid() then
+        SendChatMessage("=== Council Loot ===", "RAID_WARNING")
+        for itemID, itemLink in pairs(councilLoot) do
+            SendChatMessage(itemLink, "RAID_WARNING")
+        end
+    end
+end
+
+function LootReserves:ClearCouncil()
+    wipe(councilLoot)
+    self.db.profile.CouncilLoot = councilLoot
+
+    print("Council loot list has been cleared.")
+    SendChatMessage("Council loot list has been cleared.", "RAID_WARNING")
 end
 
 function LootReserves:ShowMembersReservations()

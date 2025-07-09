@@ -32,6 +32,9 @@
 - `/rannounce`: Announce reserved items in raid chat.
 - `/showmembers`: Print a list of all players with their reserved items.
 - `/showreserves`: Print all reserved items and their reserving players.
+- `/addcouncil [item link]`: Add item to council loot
+- `/showcouncil`: List all council loot items
+- `/clearcouncil`: Clear council loot list
 
 ---
 

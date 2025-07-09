@@ -2,7 +2,7 @@
 ## Title: LootReserves
 ## Notes: Addon for reservation loot
 ## Author: VTsepish
-## Version: 0.2
+## Version: 0.3
 ## OptionalDeps: LibDataBroker-1.1, LibDBIcon-1.0
 ## SavedVariables: LootReservesDB, LootReservesDB
 
