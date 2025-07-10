@@ -48,7 +48,7 @@ function LootReserves:OnInitialize()
 
         local itemID = itemLink:match("|Hitem:(%d+)")
         if not itemID then return end
-        
+
         if councilLoot[itemID] then
             tooltip:AddLine(" ")
             tooltip:AddLine("|cFFFF0000Reserved for council loot|r")
@@ -471,6 +471,14 @@ function LootReserves:CreateSettingsTab(container)
         LootReserves:AnnounceReserves()
     end)
     container:AddChild(announceReservesButton)
+
+    local announceCouncilButton = LootReservesGUI:Create("Button")
+    announceCouncilButton:SetText("Announce Council")
+    announceCouncilButton:SetFullWidth(true)
+    announceCouncilButton:SetCallback("OnClick", function()
+        LootReserves:ShowCouncil()
+    end)
+    container:AddChild(announceCouncilButton)
 
     local openButton = LootReservesGUI:Create("Button")
     openButton:SetText("Open Reserves")
