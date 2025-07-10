@@ -48,8 +48,7 @@ function LootReserves:OnInitialize()
 
         local itemID = itemLink:match("|Hitem:(%d+)")
         if not itemID then return end
-
-        -- Показываем информацию о council loot
+        
         if councilLoot[itemID] then
             tooltip:AddLine(" ")
             tooltip:AddLine("|cFFFF0000Reserved for council loot|r")
@@ -155,7 +154,6 @@ function LootReserves:AddReserve(itemLink, sender)
     local itemID = itemLink:match("|Hitem:(%d+)")
     local itemName = itemLink:match("%[(.-)%]")
 
-    -- Проверяем, есть ли предмет в council loot
     if councilLoot[itemID] then
         SendChatMessage("This item is reserved for council loot and cannot be reserved.", "WHISPER", nil, sender)
         return
@@ -255,9 +253,7 @@ function LootReserves:AddCouncil(msg)
     -- Добавляем в список council loot
     councilLoot[itemID] = itemLink
     self.db.profile.CouncilLoot = councilLoot
-
     print("Added to council loot: " .. (select(2, GetItemInfo(itemID)) or itemLink))
-    SendChatMessage("Item added to council loot: " .. (select(2, GetItemInfo(itemID)) or itemLink), "RAID_WARNING")
 end
 
 function LootReserves:ShowCouncil()
@@ -282,9 +278,7 @@ end
 function LootReserves:ClearCouncil()
     wipe(councilLoot)
     self.db.profile.CouncilLoot = councilLoot
-
     print("Council loot list has been cleared.")
-    SendChatMessage("Council loot list has been cleared.", "RAID_WARNING")
 end
 
 function LootReserves:ShowMembersReservations()
