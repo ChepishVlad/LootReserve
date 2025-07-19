@@ -78,6 +78,7 @@ function LootReserves:OnInitialize()
     self:RegisterChatCommand("addcouncil", "AddCouncil")
     self:RegisterChatCommand("showcouncil", "ShowCouncil")
     self:RegisterChatCommand("clearcouncil", "ClearCouncil")
+    self:RegisterChatCommand("removecouncil", "RemoveCouncil")
     self:RegisterEvent("CHAT_MSG_WHISPER")
     self:RegisterEvent("CHAT_MSG_RAID_WARNING")
 end
@@ -255,6 +256,23 @@ function LootReserves:AddCouncil(msg)
     self.db.profile.CouncilLoot = councilLoot
     print("Added to council loot: " .. (select(2, GetItemInfo(itemID)) or itemLink))
 end
+
+
+function LootReserves:RemoveCouncil(msg)
+    local itemLink = msg:match("|c%x+|Hitem:.-|h.-|h|r") or msg:match("|Hitem:.-|h.-|h") or msg:match("%[.-%]")
+    local itemID = itemLink:match("|Hitem:(%d+)")
+
+    if councilLoot[itemID] then
+        local removedItem = councilLoot[itemID]
+        councilLoot[itemID] = nil
+        self.db.profile.CouncilLoot = councilLoot
+
+        print("Removed from council loot: " .. removedItem)
+    else
+        print("Item not found in council loot.")
+    end
+end
+
 
 function LootReserves:ShowCouncil()
     if not next(councilLoot) then

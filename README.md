@@ -35,6 +35,7 @@
 - `/addcouncil [item link]`: Add item to council loot
 - `/showcouncil`: List all council loot items
 - `/clearcouncil`: Clear council loot list
+- `/removecouncil [item link]`: Removed item from council loot
 
 ---
 
