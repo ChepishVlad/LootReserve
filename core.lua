@@ -9,6 +9,7 @@ local LDBIcon = LibStub("LibDBIcon-1.0")
 local reserves = {}
 local members = {}
 local councilLoot = {}
+--local guildRankReserves = {}
 
 local LootReservesLDB = LDB:NewDataObject("LootReserves", {
     type = "launcher",
@@ -35,12 +36,14 @@ function LootReserves:OnInitialize()
             Reserves = {},
             Members = {},
             CouncilLoot = {},
+            --guildRankReserves = {},
             minimap = { hide = false },
         }
     }, true)
     reserves = self.db.profile.Reserves
     members = self.db.profile.Members
     councilLoot = self.db.profile.CouncilLoot
+    --guildRankReserves = self.db.profile.guildRankReserves
 
     GameTooltip:HookScript("OnTooltipSetItem", function(tooltip)
         local _, itemLink = tooltip:GetItem()
@@ -128,6 +131,21 @@ end
 
 
 function LootReserves:CHAT_MSG_WHISPER(event, message, sender)
+    -- Получаем информацию о гильдии и звании
+    local guildName, guildRankName = self:GetPlayerGuildInfo(sender)
+    local playerInfo = string.format("|cff00ff00%s|r", sender)
+
+    if guildName then
+        playerInfo = playerInfo..string.format(" from |cff00ccff%s|r", guildName)
+        if guildRankName then
+            playerInfo = playerInfo..string.format(" (|cffffcc00%s|r)", guildRankName)
+        end
+    end
+
+    -- Выводим информацию об отправителе
+    print(string.format("Message from %s: %s", playerInfo, message))
+
+
     local command, itemLink = message:match("!(%w+)%s+(.+)")
 
     if command == "addreserve" then
@@ -139,6 +157,37 @@ function LootReserves:CHAT_MSG_WHISPER(event, message, sender)
     elseif command == "checkreserve" then
         self:CheckReserve(itemLink, sender)
     end
+end
+
+function LootReserves:GetPlayerGuildInfo(playerName)
+    local guildName, guildRankName, guildRankIndex
+    -- Проверяем игроков в рейде
+    if IsInRaid() then
+        for i = 1, GetNumGroupMembers() do
+            local name, rank, _, _, _, _, _, _, _, _, _, guild = GetRaidRosterInfo(i)
+            if name == playerName then
+                guildName = guild
+                guildRankName = rank == 0 and "Leader" or rank == 1 and "Officer" or "Member"
+                guildRankIndex = rank
+                break
+            end
+        end
+    end
+
+    -- Если не нашли в рейде, проверяем гильдию (если игрок в нашей гильдии)
+    if not guildName and IsInGuild() then
+        for i = 1, GetNumGuildMembers() do
+            local name, _, rankIndex, _, _, _, _, _, _, _, _, _, _, _, _, guild = GetGuildRosterInfo(i)
+            if name == playerName then
+                guildName = guild or GetGuildInfo("player")
+                guildRankName = GuildControlGetRankName(rankIndex + 1)
+                guildRankIndex = rankIndex
+                break
+            end
+        end
+    end
+
+    return guildName, guildRankName, guildRankIndex
 end
 
 function LootReserves:AddReserve(itemLink, sender)
@@ -389,8 +438,8 @@ function LootReserves:CreateMainFrame()
     frame:SetTitle(addonName)
     frame:SetStatusText("")
     frame:SetLayout("Fill")
-    frame:SetWidth(300)
-    frame:SetHeight(400)
+    frame:SetWidth(400)
+    frame:SetHeight(500)
     frame:Hide()
     self.frame = frame
 
@@ -401,7 +450,8 @@ function LootReserves:CreateMainFrame()
     tabGroup:SetTabs({
         {text = "Items", value = "items"},
         {text = "Members", value = "members"},
-        {text = "Settings", value = "settings"}
+        {text = "Settings", value = "settings"},
+        {text = "Guild", value = "guild"}
     })
 
     tabGroup:SetCallback("OnGroupSelected", function(container, _, tab)
@@ -410,6 +460,8 @@ function LootReserves:CreateMainFrame()
             self:CreateItemsTab(container)
         elseif tab == "members" then
             self:CreateMembersTab(container)
+        elseif tab == "guild" then
+            self:CreateGuildTab(container)
         elseif tab == "settings" then
             self:CreateSettingsTab(container)
         end
@@ -515,6 +567,319 @@ function LootReserves:CreateSettingsTab(container)
     container:AddChild(closeButton)
 
 end
+
+--function LootReserves:CreateGuildTab(container)
+--    local scrollContainer = LootReservesGUI:Create("SimpleGroup")
+--    scrollContainer:SetLayout("Fill")
+--    scrollContainer:SetFullWidth(true)
+--    scrollContainer:SetFullHeight(true)
+--    container:AddChild(scrollContainer)
+--
+--    local scroll = LootReservesGUI:Create("ScrollFrame")
+--    scroll:SetLayout("List")
+--    scrollContainer:AddChild(scroll)
+--
+--    if not IsInGuild() then
+--        local noGuildLabel = LootReservesGUI:Create("Label")
+--        noGuildLabel:SetText("You aren't in a guild")
+--        noGuildLabel:SetFontObject(GameFontNormalLarge)
+--        noGuildLabel:SetColor(1, 0.2, 0.2) -- Красный цвет
+--        noGuildLabel:SetFullWidth(true)
+--        scroll:AddChild(noGuildLabel)
+--        return
+--    end
+--
+--    local guildName = GetGuildInfo("player")
+--    local guildHeader = LootReservesGUI:Create("Label")
+--    guildHeader:SetText("Guild: "..guildName)
+--    guildHeader:SetFontObject(GameFontNormalLarge)
+--    guildHeader:SetColor(0, 1, 1) -- Голубой цвет
+--    guildHeader:SetFullWidth(true)
+--    scroll:AddChild(guildHeader)
+--
+--    local ranksHeader = LootReservesGUI:Create("Label")
+--    ranksHeader:SetText("Guild Ranks:")
+--    ranksHeader:SetFontObject(GameFontNormal)
+--    ranksHeader:SetColor(1, 1, 0) -- Желтый цвет
+--    ranksHeader:SetFullWidth(true)
+--    scroll:AddChild(ranksHeader)
+--
+--    -- Получаем количество званий в гильдии
+--    local numRanks = GuildControlGetNumRanks()
+--
+--    for i = 1, numRanks do
+--        local rankName = GuildControlGetRankName(i)
+--        local rankFrame = LootReservesGUI:Create("SimpleGroup")
+--        rankFrame:SetLayout("Flow")
+--        rankFrame:SetFullWidth(true)
+--
+--        local rankIndexLabel = LootReservesGUI:Create("Label")
+--        rankIndexLabel:SetText(i..".")
+--        rankIndexLabel:SetWidth(30)
+--        rankFrame:AddChild(rankIndexLabel)
+--
+--        local rankNameLabel = LootReservesGUI:Create("Label")
+--        rankNameLabel:SetText(rankName)
+--        rankNameLabel:SetWidth(200)
+--
+--        -- Цвета для разных рангов
+--        if i == 1 then
+--            rankNameLabel:SetColor(1, 0.5, 0) -- Оранжевый для лидера
+--        elseif i <= 3 then
+--            rankNameLabel:SetColor(1, 1, 0.5) -- Светло-желтый для офицеров
+--        else
+--            rankNameLabel:SetColor(1, 1, 1) -- Белый для рядовых членов
+--        end
+--
+--        rankFrame:AddChild(rankNameLabel)
+--        scroll:AddChild(rankFrame)
+--    end
+--
+--    -- Добавляем информацию о количестве членов гильдии
+--    local numMembers = GetNumGuildMembers()
+--    local membersLabel = LootReservesGUI:Create("Label")
+--    membersLabel:SetText(string.format("Total members: %d", numMembers))
+--    membersLabel:SetFontObject(GameFontNormal)
+--    membersLabel:SetColor(0.5, 1, 0.5) -- Зеленый цвет
+--    membersLabel:SetFullWidth(true)
+--    scroll:AddChild(membersLabel)
+--end
+
+function LootReserves:CreateGuildTab(container)
+    local scrollContainer = LootReservesGUI:Create("SimpleGroup")
+    scrollContainer:SetLayout("Fill")
+    scrollContainer:SetFullWidth(true)
+    scrollContainer:SetFullHeight(true)
+    container:AddChild(scrollContainer)
+
+    local scroll = LootReservesGUI:Create("ScrollFrame")
+    scroll:SetLayout("List")
+    scrollContainer:AddChild(scroll)
+
+    if not IsInGuild() then
+        local noGuildLabel = LootReservesGUI:Create("Label")
+        noGuildLabel:SetText("You aren't in a guild")
+        noGuildLabel:SetFontObject(GameFontNormalLarge)
+        noGuildLabel:SetColor(1, 0.2, 0.2) -- Красный цвет
+        noGuildLabel:SetFullWidth(true)
+        scroll:AddChild(noGuildLabel)
+        return
+    end
+
+    local guildName = GetGuildInfo("player")
+    local guildHeader = LootReservesGUI:Create("Label")
+    guildHeader:SetText("Guild: "..guildName)
+    guildHeader:SetFontObject(GameFontNormalLarge)
+    guildHeader:SetColor(0, 1, 1) -- Голубой цвет
+    guildHeader:SetFullWidth(true)
+    scroll:AddChild(guildHeader)
+
+    local ranksHeader = LootReservesGUI:Create("Label")
+    ranksHeader:SetText("Guild Ranks and Reserve Limits:")
+    ranksHeader:SetFontObject(GameFontNormal)
+    ranksHeader:SetColor(1, 1, 0) -- Желтый цвет
+    ranksHeader:SetFullWidth(true)
+    scroll:AddChild(ranksHeader)
+
+    -- Создаем таблицу для хранения выпадающих списков
+    self.guildRankDropdowns = {}
+
+    -- Получаем количество званий в гильдии
+    local numRanks = GuildControlGetNumRanks()
+
+    for i = 1, numRanks do
+        local rankName = GuildControlGetRankName(i)
+        local rankFrame = LootReservesGUI:Create("SimpleGroup")
+        rankFrame:SetLayout("Flow")
+        rankFrame:SetFullWidth(true)
+
+        -- Номер ранга
+        local rankIndexLabel = LootReservesGUI:Create("Label")
+        rankIndexLabel:SetText(i..".")
+        rankIndexLabel:SetWidth(30)
+        rankFrame:AddChild(rankIndexLabel)
+
+        -- Название ранга
+        local rankNameLabel = LootReservesGUI:Create("Label")
+        rankNameLabel:SetText(rankName)
+        rankNameLabel:SetWidth(150)
+
+        -- Цвета для разных рангов
+        if i == 1 then
+            rankNameLabel:SetColor(1, 0.5, 0) -- Оранжевый для лидера
+        elseif i <= 3 then
+            rankNameLabel:SetColor(1, 1, 0.5) -- Светло-желтый для офицеров
+        else
+            rankNameLabel:SetColor(1, 1, 1) -- Белый для рядовых членов
+        end
+
+        rankFrame:AddChild(rankNameLabel)
+
+        -- Выпадающий список для лимита резервов
+        local dropdown = LootReservesGUI:Create("Dropdown")
+        dropdown:SetList({
+            [1] = "1 reserve",
+            [2] = "2 reserves",
+            [3] = "3 reserves"
+        })
+        dropdown:SetValue(1) -- Значение по умолчанию
+        dropdown:SetWidth(150)
+        dropdown:SetCallback("OnValueChanged", function(_, _, value)
+            -- Сохраняем выбранное значение для этого ранга
+            self.db.profile.guildRankReserves = self.db.profile.guildRankReserves or {}
+            self.db.profile.guildRankReserves[i] = value
+            print(string.format("Set %s (%d) reserve limit to %d", rankName, i, value))
+        end)
+
+        -- Восстанавливаем сохраненное значение если есть
+        if self.db.profile.guildRankReserves and self.db.profile.guildRankReserves[i] then
+            dropdown:SetValue(self.db.profile.guildRankReserves[i])
+        end
+
+        rankFrame:AddChild(dropdown)
+        self.guildRankDropdowns[i] = dropdown -- Сохраняем ссылку на список
+
+        scroll:AddChild(rankFrame)
+    end
+
+    -- Добавляем информацию о количестве членов гильдии
+    local numMembers = GetNumGuildMembers()
+    local membersLabel = LootReservesGUI:Create("Label")
+    membersLabel:SetText(string.format("Total members: %d", numMembers))
+    membersLabel:SetFontObject(GameFontNormal)
+    membersLabel:SetColor(0.5, 1, 0.5) -- Зеленый цвет
+    membersLabel:SetFullWidth(true)
+    scroll:AddChild(membersLabel)
+
+    -- Кнопка сохранения настроек
+    local saveButton = LootReservesGUI:Create("Button")
+    saveButton:SetText("Save Reserve Limits")
+    saveButton:SetFullWidth(true)
+    saveButton:SetCallback("OnClick", function()
+        -- Здесь можно добавить дополнительную логику сохранения
+        print("Guild reserve limits saved!")
+        SendChatMessage("Guild reserve limits have been updated.", "GUILD")
+    end)
+    scroll:AddChild(saveButton)
+end
+
+--function LootReserves:CreateGuildTab(container)
+--    local scrollContainer = LootReservesGUI:Create("SimpleGroup")
+--    scrollContainer:SetLayout("Fill")
+--    scrollContainer:SetFullWidth(true)
+--    scrollContainer:SetFullHeight(true)
+--    container:AddChild(scrollContainer)
+--
+--    local scroll = LootReservesGUI:Create("ScrollFrame")
+--    scroll:SetLayout("List")
+--    scrollContainer:AddChild(scroll)
+--
+--    if not IsInGuild() then
+--        local noGuildLabel = LootReservesGUI:Create("Label")
+--        noGuildLabel:SetText("You aren't in a guild")
+--        noGuildLabel:SetFontObject(GameFontNormalLarge)
+--        noGuildLabel:SetColor(1, 0.2, 0.2) -- Красный цвет
+--        noGuildLabel:SetFullWidth(true)
+--        scroll:AddChild(noGuildLabel)
+--        return
+--    end
+--
+--    local guildName = GetGuildInfo("player")
+--    local guildHeader = LootReservesGUI:Create("Label")
+--    guildHeader:SetText("Guild: "..guildName)
+--    guildHeader:SetFontObject(GameFontNormalLarge)
+--    guildHeader:SetColor(0, 1, 1) -- Голубой цвет
+--    guildHeader:SetFullWidth(true)
+--    scroll:AddChild(guildHeader)
+--
+--    local ranksHeader = LootReservesGUI:Create("Label")
+--    ranksHeader:SetText("Guild Ranks and Reserve Limits:")
+--    ranksHeader:SetFontObject(GameFontNormal)
+--    ranksHeader:SetColor(1, 1, 0) -- Желтый цвет
+--    ranksHeader:SetFullWidth(true)
+--    scroll:AddChild(ranksHeader)
+--
+--    ---- Создаем таблицу для хранения выпадающих списков
+--    --self.guildRankDropdowns = {}
+--
+--    -- Получаем количество званий в гильдии
+--    local numRanks = GuildControlGetNumRanks()
+--
+--    for i = 1, numRanks do
+--        local rankName = GuildControlGetRankName(i)
+--        local rankFrame = LootReservesGUI:Create("SimpleGroup")
+--        rankFrame:SetLayout("Flow")
+--        rankFrame:SetFullWidth(true)
+--
+--        -- Номер ранга
+--        local rankIndexLabel = LootReservesGUI:Create("Label")
+--        rankIndexLabel:SetText(i..".")
+--        rankIndexLabel:SetWidth(30)
+--        rankFrame:AddChild(rankIndexLabel)
+--
+--        -- Название ранга
+--        local rankNameLabel = LootReservesGUI:Create("Label")
+--        rankNameLabel:SetText(rankName)
+--        rankNameLabel:SetWidth(150)
+--
+--        -- Цвета для разных рангов
+--        if i == 1 then
+--            rankNameLabel:SetColor(1, 0.5, 0) -- Оранжевый для лидера
+--        elseif i <= 3 then
+--            rankNameLabel:SetColor(1, 1, 0.5) -- Светло-желтый для офицеров
+--        else
+--            rankNameLabel:SetColor(1, 1, 1) -- Белый для рядовых членов
+--        end
+--
+--        rankFrame:AddChild(rankNameLabel)
+--
+--        -- Выпадающий список для лимита резервов
+--        local dropdown = LootReservesGUI:Create("Dropdown")
+--        dropdown:SetList({
+--            [1] = "1 reserve",
+--            [2] = "2 reserves",
+--            [3] = "3 reserves"
+--        })
+--        dropdown:SetValue(1) -- Значение по умолчанию
+--        dropdown:SetWidth(150)
+--        dropdown:SetCallback("OnValueChanged", function(_, _, value)
+--            -- Сохраняем выбранное значение для этого ранга
+--            --guildRankReserves = guildRankReserves or {}
+--            guildRankReserves[i] = value
+--            print(string.format("Set %s (%d) reserve limit to %d", rankName, i, value))
+--        end)
+--
+--        -- Восстанавливаем сохраненное значение если есть
+--        if guildRankReserves and guildRankReserves[i] then
+--            dropdown:SetValue(guildRankReserves[i])
+--        end
+--
+--        rankFrame:AddChild(dropdown)
+--        guildRankReserves[i] = dropdown -- Сохраняем ссылку на список
+--
+--        scroll:AddChild(rankFrame)
+--    end
+--
+--    -- Добавляем информацию о количестве членов гильдии
+--    local numMembers = GetNumGuildMembers()
+--    local membersLabel = LootReservesGUI:Create("Label")
+--    membersLabel:SetText(string.format("Total members: %d", numMembers))
+--    membersLabel:SetFontObject(GameFontNormal)
+--    membersLabel:SetColor(0.5, 1, 0.5) -- Зеленый цвет
+--    membersLabel:SetFullWidth(true)
+--    scroll:AddChild(membersLabel)
+--
+--    -- Кнопка сохранения настроек
+--    local saveButton = LootReservesGUI:Create("Button")
+--    saveButton:SetText("Save Reserve Limits")
+--    saveButton:SetFullWidth(true)
+--    saveButton:SetCallback("OnClick", function()
+--        -- Здесь можно добавить дополнительную логику сохранения
+--        print("Guild reserve limits saved!")
+--        SendChatMessage("Guild reserve limits have been updated.", "GUILD")
+--    end)
+--    scroll:AddChild(saveButton)
+--end
 
 function LootReserves:DisplayReservesInfo(itemID)
     self.reservesInfoGroup:ReleaseChildren()
