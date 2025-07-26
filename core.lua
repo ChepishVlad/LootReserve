@@ -209,8 +209,10 @@ function LootReserves:AddReserve(itemLink, sender)
         return
     end
 
-    if members[sender] and self:GetTableSize(members[sender]) >= (self.db.profile.MaxReserves or 2) then
-        SendChatMessage("You can't reserve more than " .. (self.db.profile.MaxReserves or 2) .. " items.", "WHISPER", nil, sender)
+    local maxReserves = self:GetPlayerMaxReserves(sender)
+
+    if members[sender] and self:GetTableSize(members[sender]) >= maxReserves then
+        SendChatMessage(string.format("You can't reserve more than %d items.", maxReserves), "WHISPER", nil, sender)
         return
     end
 
@@ -227,7 +229,8 @@ function LootReserves:AddReserve(itemLink, sender)
         table.insert(reserves[itemID], sender)
     end
 
-    SendChatMessage("You have reserved: " .. itemLink, "WHISPER", nil, sender)
+    --SendChatMessage("You have reserved: " .. itemLink, "WHISPER", nil, sender)
+    SendChatMessage(string.format("You have reserved: %s (%d/%d)", itemLink, self:GetTableSize(members[sender]), maxReserves), "WHISPER", nil, sender)
 end
 
 function LootReserves:CancelReserve(itemLink, sender)
@@ -258,10 +261,31 @@ function LootReserves:CancelReserve(itemLink, sender)
     SendChatMessage("Reserve was removed.", "WHISPER", nil, sender)
 end
 
+function LootReserves:GetPlayerMaxReserves(playerName)
+    if IsInGuild() then
+        for i = 1, GetNumGuildMembers() do
+            local name, _, rankIndex = GetGuildRosterInfo(i)
+            if name == playerName then
+                local rankLimit = self.db.profile.guildRankReserves[rankIndex + 1] -- rankIndex начинается с 0
+                return rankLimit or (self.db.profile.MaxReserves or 2)
+            end
+        end
+    end
+
+    return self.db.profile.MaxReserves or 2
+end
+
 
 function LootReserves:ShowPlayerReserves(sender)
-    if not members[sender] or next(members[sender]) == nil then
-        SendChatMessage("You don't have any reserves.", "WHISPER", nil, sender)
+    --if not members[sender] or next(members[sender]) == nil then
+    --    SendChatMessage("You don't have any reserves.", "WHISPER", nil, sender)
+    --    return
+    --end
+    local maxReserves = self:GetPlayerMaxReserves(sender)
+    local currentReserves = members[sender] and self:GetTableSize(members[sender]) or 0
+
+    if currentReserves == 0 then
+        SendChatMessage(string.format("You don't have any reserves (%d/%d available).", maxReserves - currentReserves, maxReserves), "WHISPER", nil, sender)
         return
     end
 
@@ -270,7 +294,8 @@ function LootReserves:ShowPlayerReserves(sender)
         reservedItemsList = reservedItemsList .. itemLink .. ", "
     end
     reservedItemsList = reservedItemsList:sub(1, -3)
-    SendChatMessage("Your reserved items: " .. reservedItemsList, "WHISPER", nil, sender)
+
+    SendChatMessage(string.format("Your reserved items (%d/%d): %s", currentReserves, maxReserves, reservedItemsList), "WHISPER", nil, sender)
 end
 
 function LootReserves:CheckReserve(itemLink, sender)
@@ -281,11 +306,12 @@ function LootReserves:CheckReserve(itemLink, sender)
 
     local itemID = itemLink:match("|Hitem:(%d+)")
     local reservedPlayers = reserves[itemID]
+    local maxReserves = self:GetPlayerMaxReserves(sender)
 
     if not reservedPlayers or #reservedPlayers == 0 then
-        SendChatMessage("There is no reserves for this item " .. itemLink, "WHISPER", nil, sender)
+        SendChatMessage(string.format("There is no reserves for this item %s (your limit: %d)", itemLink, maxReserves), "WHISPER", nil, sender)
     else
-        SendChatMessage(#reservedPlayers .. " players have reserved this item " .. itemLink, "WHISPER", nil, sender)
+        SendChatMessage(string.format("%d players have reserved this item %s (your limit: %d)", #reservedPlayers, itemLink, maxReserves), "WHISPER", nil, sender)
     end
 end
 
@@ -380,6 +406,18 @@ function LootReserves:AnnounceReserves()
         print("You must be in a raid group to announce reserves.")
         return
     end
+
+    ---- Объявляем лимиты
+    --SendChatMessage("=== Reserve Limits ===", "RAID_WARNING")
+    --SendChatMessage(string.format("Default limit: %d items", self.db.profile.MaxReserves or 2), "RAID_WARNING")
+    --
+    --if IsInGuild() then
+    --    for i = 1, math.min(10, GuildControlGetNumRanks()) do -- Ограничиваем показ 10 рангами
+    --        local rankName = GuildControlGetRankName(i)
+    --        local limit = self.db.profile.guildRankReserves[i] or self.db.profile.MaxReserves or 2
+    --        SendChatMessage(string.format("%s: %d items", rankName, limit), "RAID_WARNING")
+    --    end
+    --end
 
     if not next(reserves) then
         SendChatMessage("No items have been reserved.", "RAID_WARNING")
