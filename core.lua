@@ -36,7 +36,7 @@ function LootReserves:OnInitialize()
             Reserves = {},
             Members = {},
             CouncilLoot = {},
-            --guildRankReserves = {},
+            guildRankReserves = {},
             minimap = { hide = false },
         }
     }, true)
@@ -726,13 +726,13 @@ function LootReserves:CreateGuildTab(container)
         dropdown:SetWidth(150)
         dropdown:SetCallback("OnValueChanged", function(_, _, value)
             -- Сохраняем выбранное значение для этого ранга
-            self.db.profile.guildRankReserves = self.db.profile.guildRankReserves or {}
+            --self.db.profile.guildRankReserves = self.db.profile.guildRankReserves or {}
             self.db.profile.guildRankReserves[i] = value
             print(string.format("Set %s (%d) reserve limit to %d", rankName, i, value))
         end)
 
         -- Восстанавливаем сохраненное значение если есть
-        if self.db.profile.guildRankReserves and self.db.profile.guildRankReserves[i] then
+        if self.db.profile.guildRankReserves[i] then
             dropdown:SetValue(self.db.profile.guildRankReserves[i])
         end
 
