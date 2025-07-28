@@ -719,10 +719,8 @@ function LootReserves:CreateGuildTab(container)
     ranksHeader:SetFullWidth(true)
     scroll:AddChild(ranksHeader)
 
-    -- Создаем таблицу для хранения выпадающих списков
     self.guildRankDropdowns = {}
 
-    -- Получаем количество званий в гильдии
     local numRanks = GuildControlGetNumRanks()
 
     for i = 1, numRanks do
@@ -731,13 +729,11 @@ function LootReserves:CreateGuildTab(container)
         rankFrame:SetLayout("Flow")
         rankFrame:SetFullWidth(true)
 
-        -- Номер ранга
         local rankIndexLabel = LootReservesGUI:Create("Label")
         rankIndexLabel:SetText(i..".")
         rankIndexLabel:SetWidth(30)
         rankFrame:AddChild(rankIndexLabel)
 
-        -- Название ранга
         local rankNameLabel = LootReservesGUI:Create("Label")
         rankNameLabel:SetText(rankName)
         rankNameLabel:SetWidth(150)
@@ -753,7 +749,6 @@ function LootReserves:CreateGuildTab(container)
 
         rankFrame:AddChild(rankNameLabel)
 
-        -- Выпадающий список для лимита резервов
         local dropdown = LootReservesGUI:Create("Dropdown")
         dropdown:SetList({
             [1] = "1 reserve",
@@ -780,7 +775,6 @@ function LootReserves:CreateGuildTab(container)
         scroll:AddChild(rankFrame)
     end
 
-    -- Добавляем информацию о количестве членов гильдии
     local numMembers = GetNumGuildMembers()
     local membersLabel = LootReservesGUI:Create("Label")
     membersLabel:SetText(string.format("Total members: %d", numMembers))
@@ -789,14 +783,12 @@ function LootReserves:CreateGuildTab(container)
     membersLabel:SetFullWidth(true)
     scroll:AddChild(membersLabel)
 
-    -- Кнопка сохранения настроек
+
     local saveButton = LootReservesGUI:Create("Button")
     saveButton:SetText("Save Reserve Limits")
     saveButton:SetFullWidth(true)
     saveButton:SetCallback("OnClick", function()
-        -- Здесь можно добавить дополнительную логику сохранения
         print("Guild reserve limits saved!")
-        SendChatMessage("Guild reserve limits have been updated.", "GUILD")
     end)
     scroll:AddChild(saveButton)
 end
