@@ -38,6 +38,7 @@ function LootReserves:OnInitialize()
             CouncilLoot = {},
             guildRankReserves = {},
             minimap = { hide = false },
+            MaxReserves = 0,
         }
     }, true)
     reserves = self.db.profile.Reserves
@@ -211,6 +212,11 @@ function LootReserves:AddReserve(itemLink, sender)
 
     local maxReserves = self:GetPlayerMaxReserves(sender)
 
+    if maxReserves == 0 then
+        SendChatMessage("Sorry you can't reserve items", "WHISPER", nil, sender)
+        return
+    end
+
     if members[sender] and self:GetTableSize(members[sender]) >= maxReserves then
         SendChatMessage(string.format("You can't reserve more than %d items.", maxReserves), "WHISPER", nil, sender)
         return
@@ -262,6 +268,10 @@ function LootReserves:CancelReserve(itemLink, sender)
 end
 
 function LootReserves:GetPlayerMaxReserves(playerName)
+    if not IsInGuild() then
+        return self.db.profile.MaxReserves or 0
+    end
+
     if IsInGuild() then
         for i = 1, GetNumGuildMembers() do
             local name, _, rankIndex = GetGuildRosterInfo(i)
@@ -272,7 +282,7 @@ function LootReserves:GetPlayerMaxReserves(playerName)
         end
     end
 
-    return self.db.profile.MaxReserves or 2
+    return self.db.profile.MaxReserves or 0
 end
 
 
@@ -283,6 +293,11 @@ function LootReserves:ShowPlayerReserves(sender)
     --end
     local maxReserves = self:GetPlayerMaxReserves(sender)
     local currentReserves = members[sender] and self:GetTableSize(members[sender]) or 0
+
+    if maxReserves == 0 then
+        SendChatMessage("Sorry you can't reserve items", "WHISPER", nil, sender)
+        return
+    end
 
     if currentReserves == 0 then
         SendChatMessage(string.format("You don't have any reserves (%d/%d available).", maxReserves - currentReserves, maxReserves), "WHISPER", nil, sender)
@@ -548,8 +563,13 @@ function LootReserves:CreateSettingsTab(container)
     local dropdown = LootReservesGUI:Create("Dropdown")
     dropdown:SetLabel("Max reserves per player:")
     dropdown:SetFullWidth(true)
-    dropdown:SetList({1, 2, 3})
-    dropdown:SetValue(self.db.profile.MaxReserves or 2)
+    dropdown:SetList({
+        [0] = "0 (no reserves)",
+        [1] = "1 reserve",
+        [2] = "2 reserves",
+        [3] = "3 reserves"
+    })
+    dropdown:SetValue(self.db.profile.MaxReserves or 0)
     dropdown:SetCallback("OnValueChanged", function(_, _, value)
         self.db.profile.MaxReserves = value
     end)
@@ -698,7 +718,7 @@ function LootReserves:CreateGuildTab(container)
         local noGuildLabel = LootReservesGUI:Create("Label")
         noGuildLabel:SetText("You aren't in a guild")
         noGuildLabel:SetFontObject(GameFontNormalLarge)
-        noGuildLabel:SetColor(1, 0.2, 0.2) -- Красный цвет
+        noGuildLabel:SetColor(1, 0.2, 0.2)
         noGuildLabel:SetFullWidth(true)
         scroll:AddChild(noGuildLabel)
         return
@@ -708,14 +728,14 @@ function LootReserves:CreateGuildTab(container)
     local guildHeader = LootReservesGUI:Create("Label")
     guildHeader:SetText("Guild: "..guildName)
     guildHeader:SetFontObject(GameFontNormalLarge)
-    guildHeader:SetColor(0, 1, 1) -- Голубой цвет
+    guildHeader:SetColor(0, 1, 1)
     guildHeader:SetFullWidth(true)
     scroll:AddChild(guildHeader)
 
     local ranksHeader = LootReservesGUI:Create("Label")
     ranksHeader:SetText("Guild Ranks and Reserve Limits:")
     ranksHeader:SetFontObject(GameFontNormal)
-    ranksHeader:SetColor(1, 1, 0) -- Желтый цвет
+    ranksHeader:SetColor(1, 1, 0)
     ranksHeader:SetFullWidth(true)
     scroll:AddChild(ranksHeader)
 
@@ -738,39 +758,36 @@ function LootReserves:CreateGuildTab(container)
         rankNameLabel:SetText(rankName)
         rankNameLabel:SetWidth(150)
 
-        -- Цвета для разных рангов
         if i == 1 then
-            rankNameLabel:SetColor(1, 0.5, 0) -- Оранжевый для лидера
+            rankNameLabel:SetColor(1, 0.5, 0)
         elseif i <= 3 then
-            rankNameLabel:SetColor(1, 1, 0.5) -- Светло-желтый для офицеров
+            rankNameLabel:SetColor(1, 1, 0.5)
         else
-            rankNameLabel:SetColor(1, 1, 1) -- Белый для рядовых членов
+            rankNameLabel:SetColor(1, 1, 1)
         end
 
         rankFrame:AddChild(rankNameLabel)
 
         local dropdown = LootReservesGUI:Create("Dropdown")
         dropdown:SetList({
+            [0] = "0 (no reserves)",
             [1] = "1 reserve",
             [2] = "2 reserves",
             [3] = "3 reserves"
         })
-        dropdown:SetValue(1) -- Значение по умолчанию
+        dropdown:SetValue(0)
         dropdown:SetWidth(150)
         dropdown:SetCallback("OnValueChanged", function(_, _, value)
-            -- Сохраняем выбранное значение для этого ранга
-            --self.db.profile.guildRankReserves = self.db.profile.guildRankReserves or {}
             self.db.profile.guildRankReserves[i] = value
             print(string.format("Set %s (%d) reserve limit to %d", rankName, i, value))
         end)
 
-        -- Восстанавливаем сохраненное значение если есть
         if self.db.profile.guildRankReserves[i] then
             dropdown:SetValue(self.db.profile.guildRankReserves[i])
         end
 
         rankFrame:AddChild(dropdown)
-        self.guildRankDropdowns[i] = dropdown -- Сохраняем ссылку на список
+        self.guildRankDropdowns[i] = dropdown
 
         scroll:AddChild(rankFrame)
     end
@@ -779,7 +796,7 @@ function LootReserves:CreateGuildTab(container)
     local membersLabel = LootReservesGUI:Create("Label")
     membersLabel:SetText(string.format("Total members: %d", numMembers))
     membersLabel:SetFontObject(GameFontNormal)
-    membersLabel:SetColor(0.5, 1, 0.5) -- Зеленый цвет
+    membersLabel:SetColor(0.5, 1, 0.5)
     membersLabel:SetFullWidth(true)
     scroll:AddChild(membersLabel)
 
