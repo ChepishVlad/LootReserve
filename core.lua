@@ -416,6 +416,34 @@ function LootReserves:GetTableSize(tbl)
     return count
 end
 
+function LootReserves:AnnounceRules()
+    if not self:IsInRaid() then
+        print("You must be in a raid group to announce rules.")
+        return
+    end
+
+    SendChatMessage("=== Loot Reserve Rules ===", "RAID_WARNING")
+
+    -- Общий лимит для не-членов гильдии
+    local defaultLimit = self.db.profile.MaxReserves or 0
+    SendChatMessage(string.format("Default reserve limit: %d %s",
+            defaultLimit,
+            defaultLimit == 1 and "item" or "items"), "RAID_WARNING")
+
+    -- Лимиты для рангов гильдии (если игрок в гильдии)
+    if IsInGuild() then
+        for i = 1, math.min(10, GuildControlGetNumRanks()) do -- Ограничиваем показ 10 рангами
+            local rankName = GuildControlGetRankName(i)
+            local limit = self.db.profile.guildRankReserves[i] or self.db.profile.MaxReserves or 2
+            SendChatMessage(string.format("%s: %d items", rankName, limit), "RAID_WARNING")
+        end
+    end
+
+    local status = self.db.profile.isReserveOpen and "|cff00ff00OPEN|r" or "|cffff0000CLOSED|r"
+    SendChatMessage("Current status: "..status, "RAID_WARNING")
+end
+
+
 function LootReserves:AnnounceReserves()
     if not LootReserves:IsInRaid() then
         print("You must be in a raid group to announce reserves.")
@@ -423,9 +451,9 @@ function LootReserves:AnnounceReserves()
     end
 
     ---- Объявляем лимиты
-    --SendChatMessage("=== Reserve Limits ===", "RAID_WARNING")
-    --SendChatMessage(string.format("Default limit: %d items", self.db.profile.MaxReserves or 2), "RAID_WARNING")
-    --
+    SendChatMessage("=== Reserve Limits ===", "RAID_WARNING")
+    SendChatMessage(string.format("Default limit: %d items", self.db.profile.MaxReserves or 2), "RAID_WARNING")
+
     --if IsInGuild() then
     --    for i = 1, math.min(10, GuildControlGetNumRanks()) do -- Ограничиваем показ 10 рангами
     --        local rankName = GuildControlGetRankName(i)
@@ -471,8 +499,9 @@ end
 function LootReserves:OpenReserves()
     self.db.profile.isReserveOpen = true
     SendChatMessage("Reservations are opened", "RAID_WARNING")
-    local maxReserves = self.db.profile.MaxReserves or 2
-    SendChatMessage("You can reserve " .. maxReserves .. " items for this raid.", "RAID_WARNING")
+    LootReserves:AnnounceRules()
+    --local maxReserves = self.db.profile.MaxReserves or 0
+    --SendChatMessage("You can reserve " .. maxReserves .. " items for this raid.", "RAID_WARNING")
     print("LootReserves: Reservations are now open!")
 end
 
@@ -587,8 +616,9 @@ function LootReserves:CreateSettingsTab(container)
     announceRulesButton:SetText("Announce Rules")
     announceRulesButton:SetFullWidth(true)
     announceRulesButton:SetCallback("OnClick", function()
-        local maxReserves = self.db.profile.MaxReserves or 2
-        SendChatMessage("You can reserve " .. maxReserves .. " items for this raid.", "RAID_WARNING")
+        --local maxReserves = self.db.profile.MaxReserves or 0
+        --SendChatMessage("You can reserve " .. maxReserves .. " items for this raid.", "RAID_WARNING")
+        LootReserves:AnnounceRules()
     end)
     container:AddChild(announceRulesButton)
 
