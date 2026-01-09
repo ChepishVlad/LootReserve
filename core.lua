@@ -277,7 +277,7 @@ function LootReserves:GetPlayerMaxReserves(playerName)
             local name, _, rankIndex = GetGuildRosterInfo(i)
             if name == playerName then
                 local rankLimit = self.db.profile.guildRankReserves[rankIndex + 1] -- rankIndex начинается с 0
-                return rankLimit or (self.db.profile.MaxReserves or 2)
+                return rankLimit or (self.db.profile.MaxReserves or 0)
             end
         end
     end
@@ -454,13 +454,13 @@ function LootReserves:AnnounceReserves()
     SendChatMessage("=== Reserve Limits ===", "RAID_WARNING")
     SendChatMessage(string.format("Default limit: %d items", self.db.profile.MaxReserves or 2), "RAID_WARNING")
 
-    --if IsInGuild() then
-    --    for i = 1, math.min(10, GuildControlGetNumRanks()) do -- Ограничиваем показ 10 рангами
-    --        local rankName = GuildControlGetRankName(i)
-    --        local limit = self.db.profile.guildRankReserves[i] or self.db.profile.MaxReserves or 2
-    --        SendChatMessage(string.format("%s: %d items", rankName, limit), "RAID_WARNING")
-    --    end
-    --end
+    if IsInGuild() then
+        for i = 1, math.min(10, GuildControlGetNumRanks()) do -- Ограничиваем показ 10 рангами
+            local rankName = GuildControlGetRankName(i)
+            local limit = self.db.profile.guildRankReserves[i] or self.db.profile.MaxReserves or 2
+            SendChatMessage(string.format("%s: %d items", rankName, limit), "RAID_WARNING")
+        end
+    end
 
     if not next(reserves) then
         SendChatMessage("No items have been reserved.", "RAID_WARNING")
